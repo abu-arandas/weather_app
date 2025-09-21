@@ -5,6 +5,9 @@ class Weather {
   String description;
   int humidity;
   double windSpeed;
+  double uv;
+  double pressure;
+  double visibility;
   List<Forecast> forecast;
 
   Weather({
@@ -14,19 +17,32 @@ class Weather {
     required this.description,
     required this.humidity,
     required this.windSpeed,
+    required this.uv,
+    required this.pressure,
+    required this.visibility,
     required this.forecast,
   });
 
-  factory Weather.fromJson(Map<String, dynamic> json) => Weather(
+  factory Weather.fromJson(Map<String, dynamic> json, bool isCelsius) =>
+      Weather(
         city: json['location']['name'],
-        temperature: (json['current']['temp_c']).toDouble(),
-        feelsLike: (json['current']['feelslike_c']).toDouble(),
+        temperature:
+            (isCelsius ? json['current']['temp_c'] : json['current']['temp_f'])
+                .toDouble(),
+        feelsLike: (isCelsius
+                ? json['current']['feelslike_c']
+                : json['current']['feelslike_f'])
+            .toDouble(),
         description: json['current']['condition']['text'],
         humidity: json['current']['humidity'],
         windSpeed: (json['current']['wind_mph']).toDouble(),
+        uv: (json['current']['uv']).toDouble(),
+        pressure: (json['current']['pressure_mb']).toDouble(),
+        visibility: (json['current']['vis_km']).toDouble(),
         forecast: List.generate(
           json['forecast']['forecastday'].length,
-          (index) => Forecast.fromJson(json['forecast']['forecastday'][index]),
+          (index) => Forecast.fromJson(
+              json['forecast']['forecastday'][index], isCelsius),
         ),
       );
 }
@@ -38,6 +54,7 @@ class Forecast {
   bool hasRain, hasSnow;
   String description;
   String sunrise, sunset, moonrise, moonset, moonPhase;
+  double uv;
   List<Hour> hours;
 
   Forecast({
@@ -55,14 +72,25 @@ class Forecast {
     required this.moonrise,
     required this.moonset,
     required this.moonPhase,
+    required this.uv,
     required this.hours,
   });
 
-  factory Forecast.fromJson(Map<String, dynamic> json) => Forecast(
+  factory Forecast.fromJson(Map<String, dynamic> json, bool isCelsius) =>
+      Forecast(
         date: DateTime.parse(json['date']),
-        maxTemperature: (json['day']['maxtemp_c']).toDouble(),
-        minTemperature: (json['day']['mintemp_c']).toDouble(),
-        avgTemperature: (json['day']['avgtemp_c']).toDouble(),
+        maxTemperature: (isCelsius
+                ? json['day']['maxtemp_c']
+                : json['day']['maxtemp_f'])
+            .toDouble(),
+        minTemperature: (isCelsius
+                ? json['day']['mintemp_c']
+                : json['day']['mintemp_f'])
+            .toDouble(),
+        avgTemperature: (isCelsius
+                ? json['day']['avgtemp_c']
+                : json['day']['avgtemp_f'])
+            .toDouble(),
         maxWind: (json['day']['maxwind_mph']).toDouble(),
         humidity: json['day']['avghumidity'],
         hasRain: json['day']['daily_chance_of_rain'] == 0 ? false : true,
@@ -73,9 +101,10 @@ class Forecast {
         moonrise: json['astro']['moonrise'],
         moonset: json['astro']['moonset'],
         moonPhase: json['astro']['moon_phase'],
+        uv: (json['day']['uv']).toDouble(),
         hours: List.generate(
           json['hour'].length,
-          (index) => Hour.fromJson(json['hour'][index]),
+          (index) => Hour.fromJson(json['hour'][index], isCelsius),
         ),
       );
 }
@@ -93,9 +122,10 @@ class Hour {
     required this.humidity,
   });
 
-  factory Hour.fromJson(Map<String, dynamic> json) => Hour(
+  factory Hour.fromJson(Map<String, dynamic> json, bool isCelsius) => Hour(
         date: DateTime.parse(json['time']),
-        temperature: (json['temp_c']).toDouble(),
+        temperature:
+            (isCelsius ? json['temp_c'] : json['temp_f']).toDouble(),
         description: json['condition']['text'],
         humidity: json['humidity'],
       );
