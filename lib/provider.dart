@@ -1,13 +1,46 @@
 import 'dart:convert';
-
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:geocoding/geocoding.dart';
 
 import 'models.dart';
 
-class AppProvider {
-  String apiKey = '0f2486c3a5b7442ba20200510242203';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class WeatherProvider with ChangeNotifier {
+  late String apiKey;
+  Weather? _weather;
+  Weather? get weather => _weather;
+  bool _loading = false;
+  bool get loading => _loading;
+  String? _error;
+  String? get error => _error;
+  bool _isCelsius = true;
+  bool get isCelsius => _isCelsius;
+
+  WeatherProvider() {
+    loadPreferences();
+  }
+
+  Future<void> loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    _isCelsius = prefs.getBool('isCelsius') ?? true;
+    notifyListeners();
+  }
+
+  Future<void> toggleUnit() async {
+    _isCelsius = !_isCelsius;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isCelsius', _isCelsius);
+    notifyListeners();
+  }
+
+  Future<void> loadApiKey() async {
+    final String jsonString = await rootBundle.loadString('config.json');
+    final data = json.decode(jsonString);
+    apiKey = data['apiKey'];
+  }
 
   Future<Position> getCurrentPosition() async {
     bool serviceEnabled;
@@ -29,25 +62,34 @@ class AppProvider {
     );
   }
 
-  Future<Weather> callWeatherAPi(
-      {required bool current, String? cityName}) async {
-    Position currentPosition = await getCurrentPosition();
+  Future<void> callWeatherAPi({bool current = true, String? cityName}) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
 
-    if (current) {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-          currentPosition.latitude, currentPosition.longitude);
+    try {
+      await loadApiKey();
+      Position? currentPosition;
+      if (current) {
+        currentPosition = await getCurrentPosition();
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+            currentPosition.latitude, currentPosition.longitude);
+        Placemark place = placemarks[0];
+        cityName = place.locality!;
+      }
 
-      Placemark place = placemarks[0];
-      cityName = place.locality!;
+      final Response response = await get(Uri.parse(
+        'https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$cityName&days=7',
+      ));
+
+      final Map<String, dynamic> decodedJson = json.decode(response.body);
+      _weather = Weather.fromJson(decodedJson, _isCelsius);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _loading = false;
+      notifyListeners();
     }
-
-    final Response response = await get(Uri.parse(
-      'https://api.weatherapi.com/v1/forecast.json?key=0f2486c3a5b7442ba20200510242203&q=$cityName&days=7',
-    ));
-
-    final Map<String, dynamic> decodedJson = json.decode(response.body);
-
-    return Weather.fromJson(decodedJson);
   }
 
   String getWeatherImage(String input) {
