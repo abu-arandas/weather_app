@@ -1,5 +1,58 @@
+class AirQuality {
+  double co, no2, o3, so2, pm2_5, pm10;
+  int usEpaIndex;
+
+  AirQuality({
+    required this.co,
+    required this.no2,
+    required this.o3,
+    required this.so2,
+    required this.pm2_5,
+    required this.pm10,
+    required this.usEpaIndex,
+  });
+
+  factory AirQuality.fromJson(Map<String, dynamic> json) => AirQuality(
+    co: json['co'],
+    no2: json['no2'],
+    o3: json['o3'],
+    so2: json['so2'],
+    pm2_5: json['pm2_5'],
+    pm10: json['pm10'],
+    usEpaIndex: json['us-epa-index'],
+  );
+}
+
+class Alert {
+  final String headline;
+  final String event;
+  final String severity;
+  final String desc;
+  final String instruction;
+
+  Alert({
+    required this.headline,
+    required this.event,
+    required this.severity,
+    required this.desc,
+    required this.instruction,
+  });
+
+  factory Alert.fromJson(Map<String, dynamic> json) {
+    return Alert(
+      headline: json['headline'] ?? '',
+      event: json['event'] ?? '',
+      severity: json['severity'] ?? '',
+      desc: json['desc'] ?? '',
+      instruction: json['instruction'] ?? '',
+    );
+  }
+}
+
 class Weather {
   String city;
+  double lat;
+  double lon;
   double temperature;
   double feelsLike;
   String description;
@@ -9,9 +62,13 @@ class Weather {
   double pressure;
   double visibility;
   List<Forecast> forecast;
+  AirQuality airQuality;
+  List<Alert> alerts;
 
   Weather({
     required this.city,
+    required this.lat,
+    required this.lon,
     required this.temperature,
     required this.feelsLike,
     required this.description,
@@ -21,10 +78,14 @@ class Weather {
     required this.pressure,
     required this.visibility,
     required this.forecast,
+    required this.airQuality,
+    required this.alerts,
   });
 
   factory Weather.fromJson(Map<String, dynamic> json, bool isCelsius) => Weather(
     city: json['location']['name'],
+    lat: json['location']['lat'].toDouble(),
+    lon: json['location']['lon'].toDouble(),
     temperature: (isCelsius ? json['current']['temp_c'] : json['current']['temp_f']).toDouble(),
     feelsLike: (isCelsius ? json['current']['feelslike_c'] : json['current']['feelslike_f'])
         .toDouble(),
@@ -38,6 +99,13 @@ class Weather {
       json['forecast']['forecastday'].length,
       (index) => Forecast.fromJson(json['forecast']['forecastday'][index], isCelsius),
     ),
+    airQuality: AirQuality.fromJson(json['current']['air_quality']),
+    alerts: json['alerts'] != null && (json['alerts']['alert'] as List).isNotEmpty
+        ? List.generate(
+            (json['alerts']['alert'] as List).length,
+            (index) => Alert.fromJson((json['alerts']['alert'] as List)[index]),
+          )
+        : [],
   );
 }
 
