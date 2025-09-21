@@ -23,7 +23,7 @@ class LocationsProvider with ChangeNotifier {
 
   Future<void> searchLocation(String cityName) async {
     try {
-      await AppProvider().callWeatherAPi(current: false, cityName: cityName);
+      await WeatherProvider().callWeatherAPi(current: false, cityName: cityName);
       await addLocation(cityName);
     } catch (e) {
       throw Exception('City not found');
@@ -58,9 +58,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manage Locations'),
-      ),
+      appBar: AppBar(title: const Text('Manage Locations')),
       body: Column(
         children: [
           Padding(
@@ -74,15 +72,12 @@ class _LocationsScreenState extends State<LocationsScreen> {
                   icon: const Icon(Icons.add),
                   onPressed: () async {
                     try {
-                      await _locationsProvider
-                          .searchLocation(_searchController.text);
+                      await _locationsProvider.searchLocation(_searchController.text);
                       _searchController.clear();
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(e.toString()),
-                        ),
-                      );
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(e.toString())));
                     }
                   },
                 ),

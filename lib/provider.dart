@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
@@ -58,14 +59,16 @@ class WeatherProvider with ChangeNotifier {
     }
 
     return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
+      locationSettings: LocationSettings(accuracy: LocationAccuracy.best),
     );
   }
 
   Future<void> callWeatherAPi({bool current = true, String? cityName}) async {
     _loading = true;
     _error = null;
-    notifyListeners();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
 
     try {
       await loadApiKey();
@@ -73,14 +76,16 @@ class WeatherProvider with ChangeNotifier {
       if (current) {
         currentPosition = await getCurrentPosition();
         List<Placemark> placemarks = await placemarkFromCoordinates(
-            currentPosition.latitude, currentPosition.longitude);
+          currentPosition.latitude,
+          currentPosition.longitude,
+        );
         Placemark place = placemarks[0];
         cityName = place.locality!;
       }
 
-      final Response response = await get(Uri.parse(
-        'https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$cityName&days=7',
-      ));
+      final Response response = await get(
+        Uri.parse('https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$cityName&days=7'),
+      );
 
       final Map<String, dynamic> decodedJson = json.decode(response.body);
       _weather = Weather.fromJson(decodedJson, _isCelsius);

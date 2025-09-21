@@ -11,12 +11,12 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (context) => WeatherProvider(),
-        child: MaterialApp(
-          title: 'Flutter Weather',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
-          home: const Home(),
-        ),
-      );
+    create: (context) => WeatherProvider(),
+    child: MaterialApp(
+      title: 'Flutter Weather',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: true, brightness: Brightness.dark),
+      home: const Home(),
+    ),
+  );
 }

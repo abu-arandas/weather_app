@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'provider.dart';
 import 'models.dart';
@@ -30,11 +31,7 @@ class _HomeState extends State<Home> {
     return Consumer<WeatherProvider>(
       builder: (context, weatherProvider, child) {
         if (weatherProvider.loading) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
         if (weatherProvider.error != null) {
@@ -73,9 +70,7 @@ class _HomeState extends State<Home> {
                 onPressed: () {
                   weatherProvider.toggleUnit();
                 },
-                icon: Icon(weatherProvider.isCelsius
-                    ? Icons.thermostat
-                    : Icons.thermostat_auto),
+                icon: Icon(weatherProvider.isCelsius ? Icons.thermostat : Icons.thermostat_auto),
               ),
             ],
           ),
@@ -88,8 +83,7 @@ class _HomeState extends State<Home> {
                 children: [
                   const Text(
                     'Choose location',
-                    style: TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   Expanded(
                     child: AnimatedBuilder(
@@ -98,13 +92,11 @@ class _HomeState extends State<Home> {
                         return ListView.builder(
                           itemCount: _locationsProvider.locations.length,
                           itemBuilder: (context, index) {
-                            final location =
-                                _locationsProvider.locations[index];
+                            final location = _locationsProvider.locations[index];
                             return ListTile(
                               title: Text(location),
                               onTap: () {
-                                weatherProvider.callWeatherAPi(
-                                    current: false, cityName: location);
+                                weatherProvider.callWeatherAPi(current: false, cityName: location);
                                 Navigator.pop(context);
                               },
                             );
@@ -117,13 +109,11 @@ class _HomeState extends State<Home> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const LocationsScreen(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const LocationsScreen()),
                       );
                     },
                     child: const Text('Manage Locations'),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -138,8 +128,7 @@ class _HomeState extends State<Home> {
 
                 // - Image
                 Image.asset(
-                  weatherProvider
-                      .getWeatherImage(weatherProvider.weather!.description),
+                  weatherProvider.getWeatherImage(weatherProvider.weather!.description),
                   height: 150,
                   width: 150,
                   fit: BoxFit.fill,
@@ -149,16 +138,14 @@ class _HomeState extends State<Home> {
                 // - Temperature
                 Text(
                   '${weatherProvider.weather!.temperature.toStringAsFixed(0)} ${weatherProvider.isCelsius ? '°C' : '°F'}',
-                  style: const TextStyle(
-                      fontSize: 32, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
 
                 // - Description
                 Text(
                   weatherProvider.weather!.description,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
 
                 // - Feels Like & Humidity & Wind Speed
@@ -168,28 +155,19 @@ class _HomeState extends State<Home> {
                     const Text('Feels Like '),
                     Text(
                       '${weatherProvider.weather!.feelsLike.toStringAsFixed(0)} ${weatherProvider.isCelsius ? '°C' : '°F'}',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const Text(
-                      '  |  ',
-                      style: TextStyle(fontSize: 24),
-                    ),
+                    const Text('  |  ', style: TextStyle(fontSize: 24)),
                     const Text('Humidity '),
                     Text(
                       '${weatherProvider.weather!.humidity.toStringAsFixed(0)}%',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const Text(
-                      '  |  ',
-                      style: TextStyle(fontSize: 24),
-                    ),
+                    const Text('  |  ', style: TextStyle(fontSize: 24)),
                     const Text('Wind Speed '),
                     Text(
                       '${weatherProvider.weather!.windSpeed.toStringAsFixed(0)}m/s',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -199,29 +177,20 @@ class _HomeState extends State<Home> {
                   children: [
                     const Text('UV Index '),
                     Text(
-                      '${weatherProvider.weather!.uv.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      weatherProvider.weather!.uv.toStringAsFixed(0),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const Text(
-                      '  |  ',
-                      style: TextStyle(fontSize: 24),
-                    ),
+                    const Text('  |  ', style: TextStyle(fontSize: 24)),
                     const Text('Pressure '),
                     Text(
                       '${weatherProvider.weather!.pressure.toStringAsFixed(0)} hPa',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const Text(
-                      '  |  ',
-                      style: TextStyle(fontSize: 24),
-                    ),
+                    const Text('  |  ', style: TextStyle(fontSize: 24)),
                     const Text('Visibility '),
                     Text(
                       '${weatherProvider.weather!.visibility.toStringAsFixed(0)} km',
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -235,10 +204,7 @@ class _HomeState extends State<Home> {
                       padding: EdgeInsets.all(16),
                       child: Text(
                         '24 Forecast',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -254,8 +220,7 @@ class _HomeState extends State<Home> {
                               children: [
                                 // - Image
                                 Image.asset(
-                                  weatherProvider.getWeatherImage(
-                                      today.hours[index].description),
+                                  weatherProvider.getWeatherImage(today.hours[index].description),
                                   height: 50,
                                   width: 50,
                                   fit: BoxFit.fill,
@@ -264,15 +229,12 @@ class _HomeState extends State<Home> {
                                 // - Temperature
                                 Text(
                                   '${today.hours[index].temperature.toStringAsFixed(0)} ${weatherProvider.isCelsius ? '°C' : '°F'}',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                 ),
 
                                 // - Time
                                 Text(
-                                  DateFormat('hh a')
-                                      .format(today.hours[index].date),
+                                  DateFormat('hh a').format(today.hours[index].date),
                                   style: const TextStyle(fontSize: 14),
                                 ),
                               ],
@@ -292,10 +254,7 @@ class _HomeState extends State<Home> {
                       padding: EdgeInsets.all(16),
                       child: Text(
                         '7 Days Forecast',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -309,14 +268,12 @@ class _HomeState extends State<Home> {
                         // - Informations
                         onTap: () => showDialog(
                           context: context,
-                          builder: (context) =>
-                              ForecastWidget(forecast: forecast[index]),
+                          builder: (context) => ForecastWidget(forecast: forecast[index]),
                         ),
 
                         // - Image
                         leading: Image.asset(
-                          weatherProvider
-                              .getWeatherImage(forecast[index].description),
+                          weatherProvider.getWeatherImage(forecast[index].description),
                           width: 50,
                           height: 50,
                         ),
@@ -334,29 +291,16 @@ class _HomeState extends State<Home> {
                             // -- Min | Max Temperature
                             Row(
                               children: [
-                                const Text(
-                                  'Min: ',
-                                  style: TextStyle(fontSize: 10),
-                                ),
+                                const Text('Min: ', style: TextStyle(fontSize: 10)),
                                 Text(
-                                      '${forecast[index].minTemperature.toStringAsFixed(0)} ${weatherProvider.isCelsius ? '°C' : '°F'}',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
+                                  '${forecast[index].minTemperature.toStringAsFixed(0)} ${weatherProvider.isCelsius ? '°C' : '°F'}',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                 ),
-                                const Text(
-                                  '  |  ',
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                                const Text(
-                                  'Max: ',
-                                  style: TextStyle(fontSize: 10),
-                                ),
+                                const Text('  |  ', style: TextStyle(fontSize: 10)),
+                                const Text('Max: ', style: TextStyle(fontSize: 10)),
                                 Text(
-                                      '${forecast[index].maxTemperature.toStringAsFixed(0)} ${weatherProvider.isCelsius ? '°C' : '°F'}',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
+                                  '${forecast[index].maxTemperature.toStringAsFixed(0)} ${weatherProvider.isCelsius ? '°C' : '°F'}',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -364,23 +308,20 @@ class _HomeState extends State<Home> {
                             // -- Condition
                             Text(
                               forecast[index].description,
-                              style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
 
                         // - Date
                         trailing: Text(
-                          DateFormat('d | EEEE')
-                              .format(forecast[index].date),
+                          DateFormat('d | EEEE').format(forecast[index].date),
                           style: const TextStyle(fontSize: 14),
                         ),
                       ),
                     ),
-                  )
-                }
+                  ),
+                },
               ],
             ),
           ),
@@ -396,227 +337,181 @@ class ForecastWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        contentPadding: EdgeInsets.zero,
-        content: SingleChildScrollView(
-          child: Column(
+    contentPadding: EdgeInsets.zero,
+    content: SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 25),
+
+          // - Image
+          Image.asset(
+            WeatherProvider().getWeatherImage(forecast.description),
+            height: 150,
+            width: 150,
+            fit: BoxFit.fill,
+          ),
+          const SizedBox(height: 16),
+
+          // - Temperature
+          Text(
+            '${forecast.avgTemperature} °C',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+
+          // - Description
+          Text(
+            forecast.description,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+
+          // - Min | Max Temperature
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 25),
-
-              // - Image
-              Image.asset(
-                AppProvider().getWeatherImage(forecast.description),
-                height: 150,
-                width: 150,
-                fit: BoxFit.fill,
-              ),
-              const SizedBox(height: 16),
-
-              // - Temperature
+              const Text('Min: '),
               Text(
-                '${forecast.avgTemperature} °C',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                '${forecast.minTemperature.toStringAsFixed(0)} °C',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-
-              // - Description
+              const Text('  |  ', style: TextStyle(fontSize: 24)),
+              const Text('Max: '),
               Text(
-                forecast.description,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                '${forecast.maxTemperature.toStringAsFixed(0)} °C',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 16),
-
-              // - Min | Max Temperature
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Min: '),
-                  Text(
-                    '${forecast.minTemperature.toStringAsFixed(0)} °C',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    '  |  ',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  const Text('Max: '),
-                  Text(
-                    '${forecast.maxTemperature.toStringAsFixed(0)} °C',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-
-              // - Humidity & Wind Speed
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Humidity '),
-                  Text(
-                    '${forecast.humidity.toStringAsFixed(0)}%',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    '  |  ',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  const Text('Wind Speed '),
-                  Text(
-                    '${forecast.maxWind.toStringAsFixed(0)}m/s',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-
-              // - Rainy & Snowy
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Rainy '),
-                  Text(
-                    forecast.hasRain.toString(),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const Text(
-                    '  |  ',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  const Text('Snowy '),
-                  Text(
-                    forecast.hasSnow.toString(),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // - Sunrise
-              ListTile(
-                title: const Text('Sunrise',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(forecast.sunrise),
-                ),
-              ),
-
-              // - Sunset
-              ListTile(
-                title: const Text('Sunset',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(forecast.sunset),
-                ),
-              ),
-
-              // - Moonrise
-              ListTile(
-                title: const Text('Moonrise',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(forecast.moonrise),
-                ),
-              ),
-
-              // - Moonset
-              ListTile(
-                title: const Text('Moonset',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(forecast.moonset),
-                ),
-              ),
-
-              // - Moon Phase
-              ListTile(
-                title: const Text('Moon Phase',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(forecast.moonPhase),
-                ),
-              ),
-
-              // - UV Index
-              ListTile(
-                title: const Text('UV Index',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(forecast.uv.toString()),
-                ),
-              ),
-
-              // - Today Forecast
-              ...{
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      '24 Forecast',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(
-                      forecast.hours.length,
-                      (index) => Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            children: [
-                              // - Image
-                              Image.asset(
-                                AppProvider().getWeatherImage(
-                                    forecast.hours[index].description),
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.fill,
-                              ),
-
-                              // - Temperature
-                              Text(
-                                '${forecast.hours[index].temperature.toStringAsFixed(0)} °C',
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-
-                              // - Time
-                              Text(
-                                DateFormat('hh a')
-                                    .format(forecast.hours[index].date),
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              },
-              const SizedBox(height: 16)
             ],
           ),
-        ),
-      );
+
+          // - Humidity & Wind Speed
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Humidity '),
+              Text(
+                '${forecast.humidity.toStringAsFixed(0)}%',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const Text('  |  ', style: TextStyle(fontSize: 24)),
+              const Text('Wind Speed '),
+              Text(
+                '${forecast.maxWind.toStringAsFixed(0)}m/s',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+
+          // - Rainy & Snowy
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Rainy '),
+              Text(
+                forecast.hasRain.toString(),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const Text('  |  ', style: TextStyle(fontSize: 24)),
+              const Text('Snowy '),
+              Text(
+                forecast.hasSnow.toString(),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // - Sunrise
+          ListTile(
+            title: const Text('Sunrise', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Padding(padding: const EdgeInsets.all(8), child: Text(forecast.sunrise)),
+          ),
+
+          // - Sunset
+          ListTile(
+            title: const Text('Sunset', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Padding(padding: const EdgeInsets.all(8), child: Text(forecast.sunset)),
+          ),
+
+          // - Moonrise
+          ListTile(
+            title: const Text('Moonrise', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Padding(padding: const EdgeInsets.all(8), child: Text(forecast.moonrise)),
+          ),
+
+          // - Moonset
+          ListTile(
+            title: const Text('Moonset', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Padding(padding: const EdgeInsets.all(8), child: Text(forecast.moonset)),
+          ),
+
+          // - Moon Phase
+          ListTile(
+            title: const Text('Moon Phase', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Padding(padding: const EdgeInsets.all(8), child: Text(forecast.moonPhase)),
+          ),
+
+          // - UV Index
+          ListTile(
+            title: const Text('UV Index', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(forecast.uv.toString()),
+            ),
+          ),
+
+          // - Today Forecast
+          ...{
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Text(
+                  '24 Forecast',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  forecast.hours.length,
+                  (index) => Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          // - Image
+                          Image.asset(
+                            WeatherProvider().getWeatherImage(forecast.hours[index].description),
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.fill,
+                          ),
+
+                          // - Temperature
+                          Text(
+                            '${forecast.hours[index].temperature.toStringAsFixed(0)} °C',
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+
+                          // - Time
+                          Text(
+                            DateFormat('hh a').format(forecast.hours[index].date),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          },
+          const SizedBox(height: 16),
+        ],
+      ),
+    ),
+  );
 }
