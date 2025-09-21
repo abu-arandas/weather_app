@@ -10,7 +10,12 @@ import 'models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WeatherProvider with ChangeNotifier {
-  late String apiKey;
+  // In a real app, these keys would not be hardcoded. They would be loaded
+  // from a secure location, such as environment variables.
+  // Due to limitations in this environment, we are hardcoding them for now.
+  String weatherApiKey = "0f2486c3a5b7442ba20200510242203";
+  String openWeatherMapApiKey = "0f2486c3a5b7442ba20200510242203"; // User provided the same key for both
+
   Weather? _weather;
   Weather? get weather => _weather;
   bool _loading = false;
@@ -35,12 +40,6 @@ class WeatherProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isCelsius', _isCelsius);
     notifyListeners();
-  }
-
-  Future<void> loadApiKey() async {
-    final String jsonString = await rootBundle.loadString('config.json');
-    final data = json.decode(jsonString);
-    apiKey = data['apiKey'];
   }
 
   Future<Position> getCurrentPosition() async {
@@ -71,7 +70,6 @@ class WeatherProvider with ChangeNotifier {
     });
 
     try {
-      await loadApiKey();
       Position? currentPosition;
       if (current) {
         currentPosition = await getCurrentPosition();
@@ -84,7 +82,7 @@ class WeatherProvider with ChangeNotifier {
       }
 
       final Response response = await get(
-        Uri.parse('https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$cityName&days=7'),
+        Uri.parse('https://api.weatherapi.com/v1/forecast.json?key=$weatherApiKey&q=$cityName&days=7&aqi=yes&alerts=yes'),
       );
 
       final Map<String, dynamic> decodedJson = json.decode(response.body);

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import 'package:weather_app/map_screen.dart';
+
 import 'provider.dart';
 import 'models.dart';
 import 'locations.dart';
@@ -24,6 +26,98 @@ class _HomeState extends State<Home> {
     final weatherProvider = Provider.of<WeatherProvider>(context, listen: false);
     weatherProvider.callWeatherAPi();
     _locationsProvider.loadLocations();
+  }
+
+  String _getAqiString(int index) {
+    switch (index) {
+      case 1:
+        return 'Good';
+      case 2:
+        return 'Moderate';
+      case 3:
+        return 'Unhealthy for sensitive groups';
+      case 4:
+        return 'Unhealthy';
+      case 5:
+        return 'Very Unhealthy';
+      case 6:
+        return 'Hazardous';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  Widget _buildAlerts(List<Alert> alerts) {
+    if (alerts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Severe Weather Alerts',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          ...alerts.map((alert) {
+            return Card(
+              color: _getAlertColor(alert.severity),
+              child: ListTile(
+                title: Text(alert.event, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(alert.headline),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(alert.event),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(alert.headline, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Text('Severity: ${alert.severity}'),
+                            const SizedBox(height: 16),
+                            const Text('Description:', style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(alert.desc),
+                            const SizedBox(height: 16),
+                            const Text('Instruction:', style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text(alert.instruction),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Color _getAlertColor(String severity) {
+    switch (severity.toLowerCase()) {
+      case 'extreme':
+        return Colors.red.shade400;
+      case 'severe':
+        return Colors.orange.shade400;
+      case 'moderate':
+        return Colors.yellow.shade400;
+      default:
+        return Colors.blueGrey.shade400;
+    }
   }
 
   @override
@@ -71,6 +165,23 @@ class _HomeState extends State<Home> {
                   weatherProvider.toggleUnit();
                 },
                 icon: Icon(weatherProvider.isCelsius ? Icons.thermostat : Icons.thermostat_auto),
+              ),
+              IconButton(
+                onPressed: () {
+                  final weather = weatherProvider.weather;
+                  if (weather != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MapScreen(
+                          initialCenter: LatLng(weather.lat, weather.lon),
+                          openWeatherMapApiKey: weatherProvider.openWeatherMapApiKey,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.map),
               ),
             ],
           ),
@@ -124,6 +235,7 @@ class _HomeState extends State<Home> {
             controller: scrollController,
             child: Column(
               children: [
+                _buildAlerts(weatherProvider.weather!.alerts),
                 const SizedBox(height: 25),
 
                 // - Image
@@ -190,6 +302,17 @@ class _HomeState extends State<Home> {
                     const Text('Visibility '),
                     Text(
                       '${weatherProvider.weather!.visibility.toStringAsFixed(0)} km',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('AQI '),
+                    Text(
+                      '${weatherProvider.weather!.airQuality.usEpaIndex} (${_getAqiString(weatherProvider.weather!.airQuality.usEpaIndex)})',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
