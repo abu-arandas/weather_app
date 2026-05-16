@@ -354,7 +354,7 @@ class HomeView extends StatelessWidget {
                 _buildDetailItem(
                   Icons.air,
                   'Wind',
-                  '${weather.windSpeed.toStringAsFixed(0)} m/s',
+                  '${weather.windSpeedMs.toStringAsFixed(1)} m/s',
                 ),
               ],
             ),
@@ -672,7 +672,7 @@ class HomeView extends StatelessWidget {
                     _buildDetailItem(
                       Icons.air,
                       'Wind',
-                      '${forecast.maxWind.toStringAsFixed(0)} m/s',
+                      '${forecast.maxWindMs.toStringAsFixed(1)} m/s',
                     ),
                     _buildDetailItem(
                       Icons.wb_sunny,

@@ -57,7 +57,7 @@ class Weather {
   double feelsLike;
   String description;
   int humidity;
-  double windSpeed;
+  double windSpeedMph;
   double uv;
   double pressure;
   double visibility;
@@ -73,7 +73,7 @@ class Weather {
     required this.feelsLike,
     required this.description,
     required this.humidity,
-    required this.windSpeed,
+    required this.windSpeedMph,
     required this.uv,
     required this.pressure,
     required this.visibility,
@@ -81,6 +81,8 @@ class Weather {
     required this.airQuality,
     required this.alerts,
   });
+
+  double get windSpeedMs => windSpeedMph * 0.44704;
 
   factory Weather.fromJson(Map<String, dynamic> json, bool isCelsius) => Weather(
     city: json['location']['name'],
@@ -91,7 +93,7 @@ class Weather {
         .toDouble(),
     description: json['current']['condition']['text'],
     humidity: json['current']['humidity'],
-    windSpeed: (json['current']['wind_mph']).toDouble(),
+    windSpeedMph: (json['current']['wind_mph']).toDouble(),
     uv: (json['current']['uv']).toDouble(),
     pressure: (json['current']['pressure_mb']).toDouble(),
     visibility: (json['current']['vis_km']).toDouble(),
@@ -111,7 +113,7 @@ class Weather {
 
 class Forecast {
   DateTime date;
-  double maxTemperature, minTemperature, avgTemperature, maxWind;
+  double maxTemperature, minTemperature, avgTemperature, maxWindMph;
   int humidity;
   bool hasRain, hasSnow;
   String description;
@@ -124,7 +126,7 @@ class Forecast {
     required this.maxTemperature,
     required this.minTemperature,
     required this.avgTemperature,
-    required this.maxWind,
+    required this.maxWindMph,
     required this.humidity,
     required this.hasRain,
     required this.hasSnow,
@@ -138,12 +140,14 @@ class Forecast {
     required this.hours,
   });
 
+  double get maxWindMs => maxWindMph * 0.44704;
+
   factory Forecast.fromJson(Map<String, dynamic> json, bool isCelsius) => Forecast(
     date: DateTime.parse(json['date']),
     maxTemperature: (isCelsius ? json['day']['maxtemp_c'] : json['day']['maxtemp_f']).toDouble(),
     minTemperature: (isCelsius ? json['day']['mintemp_c'] : json['day']['mintemp_f']).toDouble(),
     avgTemperature: (isCelsius ? json['day']['avgtemp_c'] : json['day']['avgtemp_f']).toDouble(),
-    maxWind: (json['day']['maxwind_mph']).toDouble(),
+    maxWindMph: (json['day']['maxwind_mph']).toDouble(),
     humidity: json['day']['avghumidity'],
     hasRain: json['day']['daily_chance_of_rain'] == 0 ? false : true,
     hasSnow: json['day']['daily_chance_of_snow'] == 0 ? false : true,
